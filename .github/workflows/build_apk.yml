@@ -18,6 +18,11 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
       - name: Install system dependencies
         run: |
           sudo apt-get update -qq
@@ -29,8 +34,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install --upgrade pip
-          pip install buildozer cython kivy requests certifi
+          uv pip install --system buildozer cython kivy requests certifi
 
       - name: Cache Buildozer global directory
         uses: actions/cache@v4
