@@ -57,10 +57,12 @@ class BoundlessChat:
         # ASK API KEY
         # ===============================
 
-        print("\n🤖 لطفاً کلید API را وارد کنید:")
-        print("(اگر کلید ندارید، Enter بزنید تا حالت محلی فعال شود)")
+        api_key = os.environ.get("GROQ_API_KEY", "").strip()
 
-        api_key = input("API Key: ").strip()
+        if not api_key:
+            print("\n🤖 لطفاً کلید API را وارد کنید:")
+            print("(اگر کلید ندارید، Enter بزنید تا حالت محلی فعال شود)")
+            api_key = input("API Key: ").strip()
 
         self.groq = None
         self.prompt_engine = PromptEngine()
