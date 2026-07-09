@@ -28,3 +28,7 @@ args = "python mani.py"
 
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[ports]]
+localPort = 8888
+externalPort = 80

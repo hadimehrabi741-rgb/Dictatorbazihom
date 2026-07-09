@@ -1,12 +1,12 @@
 {
     "id": "NODE_3",
     "status": "active",
-    "last_seen": "2026-07-09 21:38:15.228613",
+    "last_seen": "2026-07-09 19:45:14.913558",
     "capabilities": [
         "chat",
         "memory",
         "proactive",
         "obfuscation"
     ],
-    "started_at": "2026-07-09 21:38:15.230555"
+    "started_at": "2026-07-09 19:45:14.913884"
 }
