@@ -1,0 +1,12 @@
+{
+    "id": "076d7838",
+    "status": "active",
+    "last_seen": "2026-07-09 08:49:11.217184",
+    "capabilities": [
+        "chat",
+        "memory",
+        "proactive",
+        "obfuscation"
+    ],
+    "started_at": "2026-07-09 08:49:11.232271"
+}

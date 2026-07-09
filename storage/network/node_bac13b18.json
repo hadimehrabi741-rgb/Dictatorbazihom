@@ -1,0 +1,12 @@
+{
+    "id": "bac13b18",
+    "status": "active",
+    "last_seen": "2026-07-09 20:48:23.467080",
+    "capabilities": [
+        "chat",
+        "memory",
+        "proactive",
+        "obfuscation"
+    ],
+    "started_at": "2026-07-09 20:48:23.537433"
+}

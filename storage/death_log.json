@@ -1,0 +1,14 @@
+{
+    "events": [
+        {
+            "timestamp": "2026-07-09 08:42:57.940530",
+            "reason": "USER_COMMAND",
+            "status": "TRIGGERED"
+        },
+        {
+            "timestamp": "2026-07-09 08:48:47.080092",
+            "reason": "USER_COMMAND",
+            "status": "TRIGGERED"
+        }
+    ]
+}

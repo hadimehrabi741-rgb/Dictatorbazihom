@@ -1,0 +1,19 @@
+{
+    "count": 0,
+    "updated": "",
+    "conversations": [],
+    "long_memory": {
+        "name": "حامد",
+        "last_update": "2026-07-08 01:18:04.136776"
+    },
+    "short_memory": [
+        {
+            "user": "سلام من حامد هستم",
+            "assistant": "خوش آمدی حامد",
+            "time": "2026-07-08 01:13:10.057855"
+        }
+    ],
+    "metadata": {
+        "updated": "2026-07-08 01:18:04.136801"
+    }
+}

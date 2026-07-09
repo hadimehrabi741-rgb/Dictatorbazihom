@@ -1,0 +1,12 @@
+{
+    "id": "cbc780c3",
+    "status": "active",
+    "last_seen": "2026-07-09 08:33:31.903517",
+    "capabilities": [
+        "chat",
+        "memory",
+        "proactive",
+        "obfuscation"
+    ],
+    "started_at": "2026-07-09 08:33:31.919134"
+}

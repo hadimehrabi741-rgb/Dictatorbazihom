@@ -1,0 +1,14 @@
+{
+    "updates": [
+        {
+            "version": 2,
+            "file": "core/local_knowledge_engine.py",
+            "admin": "hamed",
+            "backup": "backup_20260709_070519_local_knowledge_engine.py",
+            "time": "2026-07-09 07:05:19.527392",
+            "status": "success"
+        }
+    ],
+    "current_version": 2,
+    "last_update": "2026-07-09 07:05:19.527360"
+}

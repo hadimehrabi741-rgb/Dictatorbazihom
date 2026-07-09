@@ -1,0 +1,12 @@
+{
+    "id": "52c1ef6d",
+    "status": "active",
+    "last_seen": "2026-07-09 20:56:25.446181",
+    "capabilities": [
+        "chat",
+        "memory",
+        "proactive",
+        "obfuscation"
+    ],
+    "started_at": "2026-07-09 20:56:25.463646"
+}

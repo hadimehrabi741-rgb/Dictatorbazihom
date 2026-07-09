@@ -1,0 +1,11 @@
+{
+    "id": "2b570d1e",
+    "status": "initializing",
+    "last_seen": "2026-07-09 09:15:55.083768",
+    "capabilities": [
+        "chat",
+        "memory",
+        "proactive",
+        "obfuscation"
+    ]
+}

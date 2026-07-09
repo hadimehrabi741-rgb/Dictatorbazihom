@@ -1,0 +1,61 @@
+{
+    "long_memory": {
+        "name": "حامد",
+        "last_update": "2026-07-08 01:59:48.207113"
+    },
+    "short_memory": [
+        {
+            "user": "سلام من حامدهستم",
+            "assistant": "من حامد.",
+            "time": "2026-07-08 02:12:21.353678"
+        },
+        {
+            "user": "GROQ CONNECTED",
+            "assistant": "GROQ API ERROR:\n{\"error\":{\"message\":\"Invalid API Key\",\"type\":\"invalid_request_error\",\"code\":\"invalid_api_key\"}}\n",
+            "time": "2026-07-08 02:13:01.078064"
+        },
+        {
+            "user": "=== BOUNDLESS CHAT ===",
+            "assistant": "GROQ API ERROR:\n{\"error\":{\"message\":\"Invalid API Key\",\"type\":\"invalid_request_error\",\"code\":\"invalid_api_key\"}}\n",
+            "time": "2026-07-08 02:13:01.356655"
+        },
+        {
+            "user": "Type exit to close",
+            "assistant": "GROQ API ERROR:\n{\"error\":{\"message\":\"Invalid API Key\",\"type\":\"invalid_request_error\",\"code\":\"invalid_api_key\"}}\n",
+            "time": "2026-07-08 02:13:01.641449"
+        },
+        {
+            "user": "You: سلام من حامدهستم",
+            "assistant": "GROQ API ERROR:\n{\"error\":{\"message\":\"Invalid API Key\",\"type\":\"invalid_request_error\",\"code\":\"invalid_api_key\"}}\n",
+            "time": "2026-07-08 02:13:01.928884"
+        },
+        {
+            "user": "Architect:",
+            "assistant": "GROQ API ERROR:\n{\"error\":{\"message\":\"Invalid API Key\",\"type\":\"invalid_request_error\",\"code\":\"invalid_api_key\"}}\n",
+            "time": "2026-07-08 02:13:02.210731"
+        },
+        {
+            "user": "من حامد.",
+            "assistant": "GROQ API ERROR:\n{\"error\":{\"message\":\"Invalid API Key\",\"type\":\"invalid_request_error\",\"code\":\"invalid_api_key\"}}\n",
+            "time": "2026-07-08 02:13:03.448000"
+        },
+        {
+            "user": "SOURCE: GROQ",
+            "assistant": "GROQ API ERROR:\n{\"error\":{\"message\":\"Invalid API Key\",\"type\":\"invalid_request_error\",\"code\":\"invalid_api_key\"}}\n",
+            "time": "2026-07-08 02:13:03.771620"
+        },
+        {
+            "user": "SYSTEM ERROR:",
+            "assistant": "GROQ API ERROR:\n{\"error\":{\"message\":\"Invalid API Key\",\"type\":\"invalid_request_error\",\"code\":\"invalid_api_key\"}}\n",
+            "time": "2026-07-08 02:13:04.842320"
+        },
+        {
+            "user": "'bool' object has no attribute 'get'",
+            "assistant": "GROQ API ERROR:\n{\"error\":{\"message\":\"Invalid API Key\",\"type\":\"invalid_request_error\",\"code\":\"invalid_api_key\"}}\n",
+            "time": "2026-07-08 02:13:05.165779"
+        }
+    ],
+    "metadata": {
+        "updated": "2026-07-08 02:13:07.717580"
+    }
+}
