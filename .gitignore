@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Runtime state (auto-generated, changes on every run)
+storage/network/
+storage/vectors/
+storage/rl/
+storage/distributed_backups/
+storage/backups/
+
+# Zip uploads
+zipFile.zip
