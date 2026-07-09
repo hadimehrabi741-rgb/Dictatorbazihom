@@ -1,7 +1,7 @@
 modules = ["python-base-3.13"]
 [nix]
 channel = "stable-25_05"
-packages = ["cacert"]
+packages = ["SDL2", "SDL2_image", "SDL2_mixer", "SDL2_ttf", "cacert", "libcxx", "mtdev", "pkg-config"]
 
 [agent]
 expertMode = true
