@@ -20,7 +20,7 @@ jobs:
           yes | sdkmanager --licenses > /dev/null 2>&1 || true
 
       - name: Build APK
-        run: buildozer -v android debug
+        run: echo y | buildozer -v android debug
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
