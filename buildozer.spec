@@ -7,9 +7,9 @@ source.dir = .
 source.include_exts = py,png,jpg,jpeg,kv,atlas,json,ttf
 source.exclude_dirs = .github, .buildozer, attached_assets, storage/backups, storage/distributed_backups
 
-version = 1.0.0
+version = 1.0.1
 
-requirements = python3,kivy,pyjnius,requests,certifi,urllib3,charset-normalizer,idna
+requirements = python3,kivy,pyjnius,requests,certifi,urllib3,charset-normalizer,idna,python-bidi
 
 orientation = portrait
 fullscreen = 0

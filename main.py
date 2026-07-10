@@ -29,6 +29,14 @@ from kivy.graphics import Color, RoundedRectangle
 from kivy.core.text import LabelBase
 from kivy.support import install_gobject_iteration
 
+# Import RTL support
+try:
+    from bidi.algorithm import get_display
+    RTL_SUPPORT = True
+except ImportError:
+    RTL_SUPPORT = False
+    print("⚠️ Warning: python-bidi not installed. RTL support disabled.")
+
 
 # ==========================================
 # REGISTER PERSIAN FONT
@@ -40,6 +48,7 @@ if os.path.exists(font_path):
     print(f"✅ Font registered: {font_path}")
 else:
     print(f"⚠️ Warning: Font not found at {font_path}")
+    print(f"   Using system default font instead")
 
 
 # ==========================================
@@ -55,15 +64,43 @@ TEXT_COLOR     = get_color_from_hex("#EAEAEA")
 HINT_COLOR     = get_color_from_hex("#888888")
 
 
+def is_rtl_text(text):
+    """Check if text contains RTL characters (Persian/Arabic)."""
+    for char in text:
+        if ord(char) >= 0x0600 and ord(char) <= 0x06FF:  # Persian/Arabic Unicode range
+            return True
+    return False
+
+
+def apply_rtl_formatting(text):
+    """Apply RTL formatting to text if needed."""
+    if not RTL_SUPPORT:
+        return text
+    if is_rtl_text(text):
+        try:
+            return get_display(text)
+        except Exception as e:
+            print(f"⚠️ RTL conversion error: {e}")
+            return text
+    return text
+
+
 def make_bubble(text, align="left", bg=None):
-    """Create a single chat bubble label."""
+    """Create a single chat bubble label with RTL support."""
+    # Apply RTL formatting
+    display_text = apply_rtl_formatting(text)
+    
     color = bg or (BOT_BUBBLE if align == "left" else USER_BUBBLE)
+    
+    # For RTL text, reverse alignment
+    text_align = "right" if (align == "right" or is_rtl_text(text)) else "left"
+    
     lbl = Label(
-        text=text,
+        text=display_text,
         markup=True,
         size_hint_y=None,
         size_hint_x=0.85,
-        halign="right" if align == "right" else "left",
+        halign=text_align,
         valign="top",
         padding=(14, 10),
         color=TEXT_COLOR,
@@ -115,7 +152,7 @@ class LoginScreen(Screen):
         root.add_widget(title)
 
         sub = Label(
-            text="ورود به سیستم",
+            text=apply_rtl_formatting("ورود به سیستم"),
             font_size="16sp",
             color=HINT_COLOR,
             size_hint_y=None,
@@ -128,7 +165,7 @@ class LoginScreen(Screen):
         root.add_widget(BoxLayout(size_hint_y=None, height=20))
 
         self.username = TextInput(
-            hint_text="نام کاربری  (Enter for guest)",
+            hint_text=apply_rtl_formatting("نام کاربری  (Enter for guest)"),
             multiline=False,
             size_hint_y=None,
             height=48,
@@ -142,7 +179,7 @@ class LoginScreen(Screen):
         root.add_widget(self.username)
 
         self.password = TextInput(
-            hint_text="رمز عبور",
+            hint_text=apply_rtl_formatting("رمز عبور"),
             multiline=False,
             password=True,
             size_hint_y=None,
@@ -167,7 +204,7 @@ class LoginScreen(Screen):
         root.add_widget(self.status)
 
         btn = Button(
-            text="ورود",
+            text=apply_rtl_formatting("ورود"),
             size_hint_y=None,
             height=50,
             font_size="16sp",
@@ -255,7 +292,7 @@ class ChatScreen(Screen):
         bar.bind(pos=lambda i, v: setattr(self._bar_rect, "pos", v))
 
         self.text_input = TextInput(
-            hint_text="پیام خود را بنویسید...",
+            hint_text=apply_rtl_formatting("پیام خود را بنویسید..."),
             multiline=False,
             size_hint_x=1,
             font_size="14sp",
@@ -284,7 +321,8 @@ class ChatScreen(Screen):
 
     def set_role(self, role, message):
         self.role = role
-        self.header_lbl.text = f"[b]BOUNDLESS AI[/b]  —  {'🟢 مدیر' if role == 'admin' else '🟡 مهمان'}"
+        role_text = apply_rtl_formatting("🟢 مدیر" if role == "admin" else "🟡 مهمان")
+        self.header_lbl.text = f"[b]BOUNDLESS AI[/b]  —  {role_text}"
         self._add_bubble(message, "left")
         self._init_orchestrator(role)
 
@@ -327,9 +365,9 @@ class ChatScreen(Screen):
                     prompt_engine=prompt_engine, groq=groq,
                     truth_guard=truth_guard, local_knowledge=local_knowledge,
                 )
-                Clock.schedule_once(lambda dt: self._add_bubble("✅ سیستم آماده است. پیام بنویسید.", "left"))
+                Clock.schedule_once(lambda dt: self._add_bubble(apply_rtl_formatting("✅ سیستم آماده است. پیام بنویسید."), "left"))
             except Exception as e:
-                Clock.schedule_once(lambda dt: self._add_bubble(f"⚠️ خطا در بارگذاری: {e}", "left"))
+                Clock.schedule_once(lambda dt: self._add_bubble(f"⚠️ {apply_rtl_formatting('خطا در بارگذاری')}: {e}", "left"))
 
         threading.Thread(target=_load, daemon=True).start()
 
@@ -338,10 +376,10 @@ class ChatScreen(Screen):
         if not text:
             return
         self.text_input.text = ""
-        self._add_bubble(f"[b]شما:[/b] {text}", "right")
+        self._add_bubble(f"[b]{apply_rtl_formatting('شما')}:[/b] {text}", "right")
 
         if self.orchestrator is None:
-            self._add_bubble("⏳ سیستم در حال بارگذاری است...", "left")
+            self._add_bubble(apply_rtl_formatting("⏳ سیستم در حال بارگذاری است..."), "left")
             return
 
         def _run():
@@ -349,7 +387,7 @@ class ChatScreen(Screen):
                 result = self.orchestrator.run(text)
                 reply = result.get("response", "")
             except Exception as e:
-                reply = f"⚠️ خطا: {e}"
+                reply = f"⚠️ {apply_rtl_formatting('خطا')}: {e}"
             Clock.schedule_once(lambda dt: self._add_bubble(reply, "left"))
 
         threading.Thread(target=_run, daemon=True).start()
