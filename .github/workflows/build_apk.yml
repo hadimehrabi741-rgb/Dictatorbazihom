@@ -18,40 +18,68 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
       - name: Install system dependencies
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y \
-            git zip unzip openjdk-17-jdk \
+            git zip unzip \
             autoconf libtool pkg-config \
             zlib1g-dev libffi-dev libssl-dev \
-            libltdl-dev build-essential \
-            cmake ninja-build
+            libltdl-dev build-essential cmake ninja-build
+
+      - name: Install Android SDK + build-tools + NDK
+        run: |
+          # Download command-line tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdtools.zip
+          unzip -q cmdtools.zip -d /opt/android
+          mkdir -p /opt/android/cmdline-tools/latest
+          mv /opt/android/cmdline-tools/cmdline-tools/* /opt/android/cmdline-tools/latest/ 2>/dev/null || \
+            mv /opt/android/cmdline-tools/* /opt/android/cmdline-tools/latest/ 2>/dev/null || true
+          export ANDROID_SDK_ROOT=/opt/android
+          export PATH=$PATH:/opt/android/cmdline-tools/latest/bin:/opt/android/platform-tools
+          # Accept licenses & install packages
+          yes | sdkmanager --sdk_root=/opt/android --licenses 2>/dev/null || true
+          sdkmanager --sdk_root=/opt/android \
+            "build-tools;33.0.2" \
+            "platform-tools" \
+            "platforms;android-33" \
+            "ndk;25.2.9519653"
+          # Make buildozer find the SDK in its expected location
+          mkdir -p ~/.buildozer/android/platform
+          ln -sf /opt/android ~/.buildozer/android/platform/android-sdk
+          echo "ANDROID_SDK_ROOT=/opt/android" >> $GITHUB_ENV
+          echo "ANDROIDSDK=/opt/android" >> $GITHUB_ENV
+          echo "ANDROIDNDK=/opt/android/ndk/25.2.9519653" >> $GITHUB_ENV
+          echo "/opt/android/build-tools/33.0.2" >> $GITHUB_PATH
+          echo "/opt/android/platform-tools" >> $GITHUB_PATH
 
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
           pip install buildozer cython
 
-      - name: Cache Buildozer global directory
+      - name: Cache Buildozer downloads
         uses: actions/cache@v4
         with:
-          path: ~/.buildozer
-          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
-          restore-keys: buildozer-${{ runner.os }}-
-
-      - name: Accept Android SDK licenses
-        run: |
-          yes | JAVA_HOME=$JAVA_HOME ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk \
-            sdkmanager --licenses 2>/dev/null || true
+          path: ~/.buildozer/android/platform
+          key: buildozer-platform-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: buildozer-platform-${{ runner.os }}-
 
       - name: Build APK
-        run: |
-          buildozer android debug
+        run: buildozer android debug
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          ANDROID_SDK_ROOT: /opt/android
+          ANDROIDSDK: /opt/android
+          ANDROIDNDK: /opt/android/ndk/25.2.9519653
 
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: boundless-ai-debug-apk
