@@ -13,81 +13,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Set up Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y \
-            git zip unzip \
-            autoconf libtool pkg-config \
-            zlib1g-dev libffi-dev libssl-dev \
-            libltdl-dev build-essential cmake ninja-build
-
-      - name: Install Android SDK + build-tools + NDK
-        run: |
-          # Download command-line tools
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmdtools.zip
-          unzip -q cmdtools.zip -d /opt/android
-          mkdir -p /opt/android/cmdline-tools/latest
-          mv /opt/android/cmdline-tools/cmdline-tools/* /opt/android/cmdline-tools/latest/ 2>/dev/null || \
-            mv /opt/android/cmdline-tools/* /opt/android/cmdline-tools/latest/ 2>/dev/null || true
-          export ANDROID_SDK_ROOT=/opt/android
-          export PATH=$PATH:/opt/android/cmdline-tools/latest/bin:/opt/android/platform-tools
-          # Accept licenses & install packages
-          yes | sdkmanager --sdk_root=/opt/android --licenses 2>/dev/null || true
-          sdkmanager --sdk_root=/opt/android \
-            "build-tools;33.0.2" \
-            "platform-tools" \
-            "platforms;android-33" \
-            "ndk;25.2.9519653"
-          # Make buildozer find the SDK in its expected location
-          mkdir -p ~/.buildozer/android/platform
-          ln -sf /opt/android ~/.buildozer/android/platform/android-sdk
-          # Buildozer looks for tools/bin/sdkmanager (old path) — create compatibility symlink
-          mkdir -p /opt/android/tools/bin
-          ln -sf /opt/android/cmdline-tools/latest/bin/sdkmanager /opt/android/tools/bin/sdkmanager
-          ln -sf /opt/android/cmdline-tools/latest/bin/avdmanager /opt/android/tools/bin/avdmanager
-          echo "ANDROID_SDK_ROOT=/opt/android" >> $GITHUB_ENV
-          echo "ANDROIDSDK=/opt/android" >> $GITHUB_ENV
-          echo "ANDROIDNDK=/opt/android/ndk/25.2.9519653" >> $GITHUB_ENV
-          echo "/opt/android/build-tools/33.0.2" >> $GITHUB_PATH
-          echo "/opt/android/platform-tools" >> $GITHUB_PATH
-
-      - name: Install Python dependencies
-        run: |
-          pip install --upgrade pip
-          pip install buildozer cython
-
-      - name: Cache Buildozer downloads
+      - name: Cache Buildozer global directory
         uses: actions/cache@v4
         with:
-          path: ~/.buildozer/android/platform
-          key: buildozer-platform-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
-          restore-keys: buildozer-platform-${{ runner.os }}-
+          path: ~/.buildozer
+          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: buildozer-${{ runner.os }}-
 
-      - name: Build APK
-        run: buildozer android debug
-        env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          ANDROID_SDK_ROOT: /opt/android
-          ANDROIDSDK: /opt/android
-          ANDROIDNDK: /opt/android/ndk/25.2.9519653
+      - name: Build APK with Buildozer Docker Action
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          command: android debug
+          workdir: .
+          buildozer_version: stable
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: boundless-ai-debug-apk
-          path: bin/*.apk
+          path: ${{ steps.buildozer.outputs.filename }}
           retention-days: 30
 
       - name: Create Release
@@ -96,7 +41,7 @@ jobs:
         with:
           tag_name: apk-${{ github.run_number }}
           name: "Boundless AI APK — Build ${{ github.run_number }}"
-          files: bin/*.apk
+          files: ${{ steps.buildozer.outputs.filename }}
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
