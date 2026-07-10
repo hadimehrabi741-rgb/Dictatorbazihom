@@ -7,52 +7,91 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    container:
-      image: kivy/buildozer:latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Locate sdkmanager and install build-tools
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install system dependencies
         run: |
-          # Print known env vars
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            git zip unzip wget \
+            autoconf libtool pkg-config \
+            zlib1g-dev libffi-dev libssl-dev \
+            libltdl-dev build-essential ccache
 
-          # Try env vars first, then common paths
-          SDKMANAGER=""
-          for base in "$ANDROID_HOME" "$ANDROID_SDK_ROOT" \
-              "/home/user/.buildozer/android/platform/android-sdk" \
-              "/root/.buildozer/android/platform/android-sdk" \
-              "/opt/android-sdk"; do
-            [ -z "$base" ] && continue
-            candidate="$base/cmdline-tools/latest/bin/sdkmanager"
-            if [ -f "$candidate" ] || [ -L "$candidate" ]; then
-              SDKMANAGER="$candidate"
-              break
-            fi
-          done
+      - name: Install Android SDK + NDK
+        run: |
+          SDK=$HOME/android-sdk
+          mkdir -p $SDK/cmdline-tools
 
-          # Fallback: broad search
-          if [ -z "$SDKMANAGER" ]; then
-            SDKMANAGER=$(find / -name sdkmanager 2>/dev/null \
-              | grep -v /proc | grep -v /sys | head -1)
-          fi
+          # Download command-line tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdtools.zip
+          unzip -q cmdtools.zip
+          # The zip extracts to cmdline-tools/ folder
+          mv cmdline-tools $SDK/cmdline-tools/latest
 
-          echo "Using sdkmanager: $SDKMANAGER"
-          if [ -z "$SDKMANAGER" ]; then
-            echo "ERROR: sdkmanager not found. Listing /home/user/.buildozer:"
-            ls /home/user/.buildozer/android/platform/ 2>/dev/null || true
-            exit 1
-          fi
+          SDKMANAGER=$SDK/cmdline-tools/latest/bin/sdkmanager
+          echo "sdkmanager: $($SDKMANAGER --version)"
 
-          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
-          "$SDKMANAGER" "build-tools;33.0.2" "platforms;android-33" "platform-tools"
+          yes | $SDKMANAGER --sdk_root=$SDK --licenses > /dev/null 2>&1 || true
+          $SDKMANAGER --sdk_root=$SDK \
+            "build-tools;33.0.2" \
+            "platform-tools" \
+            "platforms;android-33" \
+            "ndk;25.2.9519653"
+
+          # Verify aidl exists
+          echo "aidl: $(ls $SDK/build-tools/33.0.2/aidl)"
+
+          # Compat symlink (buildozer uses tools/bin/sdkmanager)
+          mkdir -p $SDK/tools/bin
+          ln -sf $SDK/cmdline-tools/latest/bin/sdkmanager $SDK/tools/bin/sdkmanager
+          ln -sf $SDK/cmdline-tools/latest/bin/avdmanager $SDK/tools/bin/avdmanager
+
+          # Tell buildozer where the SDK/NDK are
+          echo "ANDROIDSDK=$SDK"                       >> $GITHUB_ENV
+          echo "ANDROIDNDK=$SDK/ndk/25.2.9519653"      >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=$SDK"                 >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$SDK/ndk/25.2.9519653" >> $GITHUB_ENV
+          echo "$SDK/cmdline-tools/latest/bin"         >> $GITHUB_PATH
+          echo "$SDK/build-tools/33.0.2"               >> $GITHUB_PATH
+          echo "$SDK/platform-tools"                   >> $GITHUB_PATH
+          echo "$SDK/tools/bin"                        >> $GITHUB_PATH
+
+      - name: Pre-configure buildozer SDK paths
+        run: |
+          mkdir -p ~/.buildozer/android/platform
+          ln -sf $ANDROIDSDK ~/.buildozer/android/platform/android-sdk
+          ln -sf $ANDROIDNDK ~/.buildozer/android/platform/android-ndk-r25b
+
+      - name: Install buildozer + cython
+        run: |
+          pip install --upgrade pip
+          pip install buildozer==1.5.0 cython==0.29.37
+
+      - name: Cache python-for-android
+        uses: actions/cache@v4
+        with:
+          path: ~/.buildozer/android/platform/python-for-android
+          key: p4a-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+          restore-keys: p4a-${{ runner.os }}-
 
       - name: Build APK
-        run: echo y | buildozer -v android debug
+        run: buildozer -v android debug
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
