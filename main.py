@@ -22,6 +22,18 @@ from kivy.core.window import Window
 from kivy.clock import Clock
 from kivy.utils import get_color_from_hex
 from kivy.graphics import Color, RoundedRectangle
+from kivy.core.text import LabelBase
+
+
+# ==========================================
+# REGISTER PERSIAN FONT
+# ==========================================
+
+font_path = os.path.join(BASE_DIR, 'assets', 'fonts', 'IranSans.ttf')
+if os.path.exists(font_path):
+    LabelBase.register(name='IranSans', fn_regular=font_path)
+else:
+    print(f"⚠️ Warning: Font not found at {font_path}")
 
 
 # ==========================================
@@ -50,6 +62,7 @@ def make_bubble(text, align="left", bg=None):
         padding=(14, 10),
         color=TEXT_COLOR,
         font_size="14sp",
+        font_name="IranSans",
     )
     lbl.bind(texture_size=lambda inst, val: setattr(inst, "height", val[1] + 20))
     lbl.bind(width=lambda inst, val: setattr(inst, "text_size", (val, None)))
@@ -91,6 +104,7 @@ class LoginScreen(Screen):
             color=ACCENT,
             size_hint_y=None,
             height=50,
+            font_name="IranSans",
         )
         root.add_widget(title)
 
@@ -100,6 +114,7 @@ class LoginScreen(Screen):
             color=HINT_COLOR,
             size_hint_y=None,
             height=30,
+            font_name="IranSans",
         )
         root.add_widget(sub)
 
@@ -115,6 +130,7 @@ class LoginScreen(Screen):
             foreground_color=TEXT_COLOR,
             cursor_color=ACCENT,
             hint_text_color=HINT_COLOR,
+            font_name="IranSans",
         )
         root.add_widget(self.username)
 
@@ -129,6 +145,7 @@ class LoginScreen(Screen):
             foreground_color=TEXT_COLOR,
             cursor_color=ACCENT,
             hint_text_color=HINT_COLOR,
+            font_name="IranSans",
         )
         root.add_widget(self.password)
 
@@ -138,6 +155,7 @@ class LoginScreen(Screen):
             size_hint_y=None,
             height=30,
             font_size="13sp",
+            font_name="IranSans",
         )
         root.add_widget(self.status)
 
@@ -148,6 +166,7 @@ class LoginScreen(Screen):
             font_size="16sp",
             background_color=ACCENT,
             color=(1, 1, 1, 1),
+            font_name="IranSans",
         )
         btn.bind(on_press=self.do_login)
         root.add_widget(btn)
@@ -197,6 +216,7 @@ class ChatScreen(Screen):
             markup=True,
             color=TEXT_COLOR,
             font_size="17sp",
+            font_name="IranSans",
         )
         header.add_widget(self.header_lbl)
         root.add_widget(header)
@@ -235,6 +255,7 @@ class ChatScreen(Screen):
             foreground_color=TEXT_COLOR,
             cursor_color=ACCENT,
             hint_text_color=HINT_COLOR,
+            font_name="IranSans",
         )
         self.text_input.bind(on_text_validate=self.send_message)
         bar.add_widget(self.text_input)
