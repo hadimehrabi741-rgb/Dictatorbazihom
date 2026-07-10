@@ -15,9 +15,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Accept Android SDK licenses
+      - name: Install Android build-tools and accept licenses
         run: |
-          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          SDKMANAGER=$(find /home/user -name sdkmanager -type f 2>/dev/null | head -1)
+          echo "sdkmanager path: $SDKMANAGER"
+          yes | $SDKMANAGER --licenses > /dev/null 2>&1 || true
+          $SDKMANAGER "build-tools;33.0.2" "platforms;android-33" "platform-tools"
 
       - name: Build APK
         run: echo y | buildozer -v android debug
