@@ -9,13 +9,18 @@ source.exclude_dirs = .github, .buildozer, attached_assets, storage/backups, sto
 
 version = 1.0.1
 
-requirements = python3,kivy,pyjnius,requests,certifi,urllib3,charset-normalizer,idna,python-bidi
+# Requirements: added arabic-reshaper for proper Persian/Arabic shaping
+requirements = python3,kivy,pyjnius,requests,certifi,urllib3,charset-normalizer,idna,python-bidi,arabic-reshaper
 
 orientation = portrait
 fullscreen = 0
 
-android.permissions = INTERNET
-android.api = 33
+# Permissions: include storage permissions (requested at runtime in the app)
+android.permissions = INTERNET,READ_EXTERNAL_STORAGE,WRITE_EXTERNAL_STORAGE
+
+# Compile & target SDK: set to a recent Android SDK to avoid Play Protect warnings
+android.api = 34
+android.target = 34
 android.minapi = 21
 android.ndk = 25b
 android.ndk_api = 21
