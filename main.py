@@ -29,13 +29,21 @@ from kivy.graphics import Color, RoundedRectangle
 from kivy.core.text import LabelBase
 from kivy.support import install_gobject_iteration
 
-# Import RTL support
+# Import RTL support (arabic-reshaper + python-bidi)
 try:
+    import arabic_reshaper
     from bidi.algorithm import get_display
     RTL_SUPPORT = True
-except ImportError:
+except Exception:
     RTL_SUPPORT = False
-    print("⚠️ Warning: python-bidi not installed. RTL support disabled.")
+    print("⚠️ Warning: arabic-reshaper or python-bidi not installed. RTL support disabled.")
+
+# Permission helpers for Android (only available when run on device via p4a)
+try:
+    from android.permissions import request_permissions, Permission
+    ANDROID_PERMISSIONS_AVAILABLE = True
+except Exception:
+    ANDROID_PERMISSIONS_AVAILABLE = False
 
 
 # ==========================================
@@ -73,16 +81,16 @@ def is_rtl_text(text):
 
 
 def apply_rtl_formatting(text):
-    """Apply RTL formatting to text if needed."""
-    if not RTL_SUPPORT:
+    """Apply RTL shaping and bidi if needed (Persian/Arabic)."""
+    if not RTL_SUPPORT or not text:
         return text
-    if is_rtl_text(text):
-        try:
-            return get_display(text)
-        except Exception as e:
-            print(f"⚠️ RTL conversion error: {e}")
-            return text
-    return text
+    try:
+        # reshape (connect characters) then reorder for display
+        reshaped = arabic_reshaper.reshape(text)
+        return get_display(reshaped)
+    except Exception as e:
+        print(f"⚠️ RTL conversion error: {e}")
+        return text
 
 
 def make_bubble(text, align="left", bg=None):
@@ -409,6 +417,14 @@ class BoundlessApp(App):
         sm.add_widget(LoginScreen(name="login"))
         sm.add_widget(ChatScreen(name="chat"))
         return sm
+
+    def on_start(self):
+        # Request runtime permissions on Android (if available)
+        if ANDROID_PERMISSIONS_AVAILABLE:
+            try:
+                request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE])
+            except Exception as e:
+                print(f"⚠️ Permission request failed: {e}")
 
 
 if __name__ == "__main__":
