@@ -40,9 +40,14 @@ jobs:
           key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
           restore-keys: buildozer-${{ runner.os }}-
 
+      - name: Accept Android SDK licenses
+        run: |
+          yes | JAVA_HOME=$JAVA_HOME ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk \
+            sdkmanager --licenses 2>/dev/null || true
+
       - name: Build APK
         run: |
-          yes | buildozer android debug 2>&1
+          buildozer android debug
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
