@@ -6,6 +6,10 @@
 import os
 import sys
 import threading
+from kivy.config import Config
+
+# Configure Kivy for RTL text (Persian/Arabic)
+Config.set('graphics', 'multisampling', 'True')
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if BASE_DIR not in sys.path:
@@ -23,6 +27,7 @@ from kivy.clock import Clock
 from kivy.utils import get_color_from_hex
 from kivy.graphics import Color, RoundedRectangle
 from kivy.core.text import LabelBase
+from kivy.support import install_gobject_iteration
 
 
 # ==========================================
@@ -32,6 +37,7 @@ from kivy.core.text import LabelBase
 font_path = os.path.join(BASE_DIR, 'assets', 'fonts', 'IranSans.ttf')
 if os.path.exists(font_path):
     LabelBase.register(name='IranSans', fn_regular=font_path)
+    print(f"✅ Font registered: {font_path}")
 else:
     print(f"⚠️ Warning: Font not found at {font_path}")
 
@@ -57,7 +63,7 @@ def make_bubble(text, align="left", bg=None):
         markup=True,
         size_hint_y=None,
         size_hint_x=0.85,
-        halign="left",
+        halign="right" if align == "right" else "left",
         valign="top",
         padding=(14, 10),
         color=TEXT_COLOR,
@@ -115,6 +121,7 @@ class LoginScreen(Screen):
             size_hint_y=None,
             height=30,
             font_name="IranSans",
+            halign="right",
         )
         root.add_widget(sub)
 
@@ -217,6 +224,7 @@ class ChatScreen(Screen):
             color=TEXT_COLOR,
             font_size="17sp",
             font_name="IranSans",
+            halign="right",
         )
         header.add_widget(self.header_lbl)
         root.add_widget(header)
