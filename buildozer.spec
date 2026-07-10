@@ -9,7 +9,7 @@ source.exclude_dirs = .github, .buildozer, attached_assets, storage/backups, sto
 
 version = 1.0.0
 
-requirements = python3,kivy==2.3.0,requests,certifi,urllib3,charset-normalizer,idna
+requirements = python3,kivy,pyjnius,requests,certifi,urllib3,charset-normalizer,idna
 
 orientation = portrait
 fullscreen = 0
