@@ -4,7 +4,7 @@ package.name = boundlessai
 package.domain = org.boundless
 
 source.dir = .
-source.include_exts = py,png,jpg,jpeg,kv,atlas,json
+source.include_exts = py,png,jpg,jpeg,kv,atlas,json,ttf
 source.exclude_dirs = .github, .buildozer, attached_assets, storage/backups, storage/distributed_backups
 
 version = 1.0.0
