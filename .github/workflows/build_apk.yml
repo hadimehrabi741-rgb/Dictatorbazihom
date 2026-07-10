@@ -53,6 +53,10 @@ jobs:
           # Make buildozer find the SDK in its expected location
           mkdir -p ~/.buildozer/android/platform
           ln -sf /opt/android ~/.buildozer/android/platform/android-sdk
+          # Buildozer looks for tools/bin/sdkmanager (old path) — create compatibility symlink
+          mkdir -p /opt/android/tools/bin
+          ln -sf /opt/android/cmdline-tools/latest/bin/sdkmanager /opt/android/tools/bin/sdkmanager
+          ln -sf /opt/android/cmdline-tools/latest/bin/avdmanager /opt/android/tools/bin/avdmanager
           echo "ANDROID_SDK_ROOT=/opt/android" >> $GITHUB_ENV
           echo "ANDROIDSDK=/opt/android" >> $GITHUB_ENV
           echo "ANDROIDNDK=/opt/android/ndk/25.2.9519653" >> $GITHUB_ENV
