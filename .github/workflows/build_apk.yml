@@ -8,88 +8,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: kivy/buildozer:latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-
-      - name: Set up Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Install system dependencies
+      - name: Accept Android SDK licenses
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y \
-            git zip unzip wget \
-            autoconf libtool pkg-config \
-            zlib1g-dev libffi-dev libssl-dev \
-            libltdl-dev build-essential \
-            python3-pip
-
-      - name: Install Python dependencies
-        run: |
-          pip install --upgrade pip
-          pip install buildozer==1.5.0 cython==0.29.37
-
-      - name: Install Android SDK manually
-        run: |
-          export ANDROID_SDK=/opt/android-sdk
-          mkdir -p $ANDROID_SDK
-          # Download command line tools
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cmdtools.zip
-          unzip -q cmdtools.zip -d $ANDROID_SDK
-          mkdir -p $ANDROID_SDK/cmdline-tools/latest
-          mv $ANDROID_SDK/cmdline-tools/* $ANDROID_SDK/cmdline-tools/latest/ 2>/dev/null || true
-
-          export PATH=$PATH:$ANDROID_SDK/cmdline-tools/latest/bin
-          yes | sdkmanager --sdk_root=$ANDROID_SDK --licenses > /dev/null 2>&1 || true
-          sdkmanager --sdk_root=$ANDROID_SDK \
-            "build-tools;33.0.2" \
-            "platform-tools" \
-            "platforms;android-33" \
-            "ndk;25.2.9519653"
-
-          # Create tools/bin compat symlink (buildozer uses old path)
-          mkdir -p $ANDROID_SDK/tools/bin
-          ln -sf $ANDROID_SDK/cmdline-tools/latest/bin/sdkmanager $ANDROID_SDK/tools/bin/sdkmanager
-          ln -sf $ANDROID_SDK/cmdline-tools/latest/bin/avdmanager $ANDROID_SDK/tools/bin/avdmanager
-
-          # Link to buildozer's expected path
-          mkdir -p ~/.buildozer/android/platform
-          ln -sf $ANDROID_SDK ~/.buildozer/android/platform/android-sdk
-
-          # Export for later steps
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK" >> $GITHUB_ENV
-          echo "ANDROIDSDK=$ANDROID_SDK" >> $GITHUB_ENV
-          echo "ANDROIDNDK=$ANDROID_SDK/ndk/25.2.9519653" >> $GITHUB_ENV
-          echo "$ANDROID_SDK/build-tools/33.0.2" >> $GITHUB_PATH
-          echo "$ANDROID_SDK/platform-tools" >> $GITHUB_PATH
-          echo "$ANDROID_SDK/tools/bin" >> $GITHUB_PATH
-
-      - name: Cache Buildozer
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.buildozer/android/platform/python-for-android
-            ~/.buildozer/android/platform/android-sdk
-          key: buildozer-${{ runner.os }}-py310-${{ hashFiles('buildozer.spec') }}
-          restore-keys: buildozer-${{ runner.os }}-py310-
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
 
       - name: Build APK
         run: buildozer -v android debug
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
-          ANDROIDSDK: ${{ env.ANDROIDSDK }}
-          ANDROIDNDK: ${{ env.ANDROIDNDK }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
